@@ -11,7 +11,9 @@ services:
     env_file:
       - ./apps/orders/.env    
     depends_on:
-      - mongodb
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
       - inventory
       - rabbitmq
     volumes:
@@ -30,7 +32,9 @@ services:
     env_file:
       - ./apps/inventory/.env    
     depends_on:
-      - mongodb
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
       - rabbitmq
     volumes:
       - ./:/usr/src/app
@@ -42,13 +46,42 @@ services:
     ports:
       - '5672:5672'
 
-  mongodb:
-    image: mongo:latest
-    container_name: mongo_api
+  mongodb-primary:
+    image: docker.io/bitnami/mongodb:5.0
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_DISABLE_SYSTEM_LOG=true
     volumes:
-      - 'mongodb_master_data:/app_mongo/mongodb'
+      - 'mongodb_master_data:/bitnami/mongodb'
     ports:
-      - '27018:27017'
+      - '27020:27017'
+
+  mongodb-secondary:
+    image: docker.io/bitnami/mongodb:5.0
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_DISABLE_SYSTEM_LOG=true
+
+  mongodb-arbiter:
+    image: docker.io/bitnami/mongodb:5.0
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
+      - MONGODB_REPLICA_SET_MODE=arbiter
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_DISABLE_SYSTEM_LOG=true
 
 
 volumes:
