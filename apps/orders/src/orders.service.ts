@@ -25,8 +25,6 @@ export class OrdersService {
       UpdateOrderRequest,
     );
 
-    await this.ordersRepository.c;
-
     return updateOrder;
   }
 }

@@ -9,14 +9,14 @@ services:
       target: development
     command: npm run start:dev orders
     env_file:
-      - ./apps/orders/.env    
+      - ./apps/orders/.env
     depends_on:
       - mongodb
       - inventory
       - rabbitmq
     volumes:
       - ./:/usr/src/app
-      - ./usr/src/app/node_modules    
+      - ./usr/src/app/node_modules
     ports:
       - '3000:3000'
 
@@ -28,16 +28,16 @@ services:
       target: development
     command: npm run start:dev inventory
     env_file:
-      - ./apps/inventory/.env    
+      - ./apps/inventory/.env
     depends_on:
       - mongodb
       - rabbitmq
     volumes:
       - ./:/usr/src/app
-      - ./usr/src/app/node_modules 
+      - ./usr/src/app/node_modules
 
   rabbitmq:
-    image: rabbitmq   
+    image: rabbitmq
     container_name: rabbitmq_microservice
     ports:
       - '5672:5672'
@@ -49,7 +49,6 @@ services:
       - 'mongodb_master_data:/app_mongo/mongodb'
     ports:
       - '27018:27017'
-
 
 volumes:
   mongodb_master_data:
