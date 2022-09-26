@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  orders:
+    container_name: orders_microservice
+    build:
+      context: .
+      dockerfile: ./apps/orders/Dockerfile
+      target: development
+    command: npm run start:dev orders
+    env_file:
+      - ./apps/orders/.env    
+    depends_on:
+      - mongodb
+    volumes:
+      - ./:/usr/src/app
+      - ./usr/src/app/node_modules    
+    ports:
+      - '3000:3000'
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongo_api
+    volumes:
+      - 'mongodb_master_data:/app_mongo/mongodb'
+    ports:
+      - '27018:27017'
+
+
+
+volumes:
+  mongodb_master_data:
+    driver: local
